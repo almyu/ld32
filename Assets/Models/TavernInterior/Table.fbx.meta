@@ -1,22 +1,25 @@
 fileFormatVersion: 2
-guid: eef93e7ada216d4439b7f768d055f84c
+guid: 46d0711fe89f54f4cb47f65c46e5e1a9
+timeCreated: 1429360194
+licenseType: Free
 ModelImporter:
-  serializedVersion: 16
+  serializedVersion: 18
   fileIDToRecycleName:
     100000: Camera
-    100002: //RootNode
-    100004: Cylinder
-    100006: Lamp
+    100002: Cylinder_001
+    100004: Lamp
+    100006: //RootNode
     400000: Camera
-    400002: //RootNode
-    400004: Cylinder
-    400006: Lamp
-    2300000: Cylinder
-    3300000: Cylinder
-    4300000: Cylinder
-    9500000: //RootNode
+    400002: Cylinder_001
+    400004: Lamp
+    400006: //RootNode
+    2300000: Cylinder_001
+    2300002: //RootNode
+    3300000: Cylinder_001
+    3300002: //RootNode
+    4300000: Cylinder_001
   materials:
-    importMaterials: 0
+    importMaterials: 1
     materialName: 0
     materialSearch: 1
   animations:
@@ -42,11 +45,13 @@ ModelImporter:
     generateSecondaryUV: 0
     useFileUnits: 1
     optimizeMeshForGPU: 1
+    keepQuads: 0
     weldVertices: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
+    useFileScale: 1
   tangentSpace:
     normalSmoothAngle: 60
     splitTangentsAcrossUV: 1
@@ -66,6 +71,8 @@ ModelImporter:
     feetSpacing: 0
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   additionalBone: 0
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 
