@@ -3,6 +3,7 @@
 public class Visitor : MonoBehaviour {
 
     public NavMeshAgent agent;
+    public Animator animator;
     public Transform leftHand, rightHand;
     
     private Transform target;
@@ -22,11 +23,12 @@ public class Visitor : MonoBehaviour {
                 closest = weapon;
             }
         }
-
         return closest;
     }
 
     private void Update() {
+        animator.SetFloat("Speed", agent.desiredVelocity.magnitude);
+
         if (target != null) return;
 
         var wpn = SeekWeapon();
