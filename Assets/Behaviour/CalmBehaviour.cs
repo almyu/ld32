@@ -9,7 +9,7 @@ public class CalmBehaviour : StateMachineBehaviour {
         var agent = animator.GetComponent<NavMeshAgent>();
         
         agent.speed = walkingSpeed;
-        agent.destination = Seat.Pick(Seat.Preferences.none).transform.position;
+        agent.destination = Seat.Pick(Seat.Preferences.none).worldMountPoint;
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
