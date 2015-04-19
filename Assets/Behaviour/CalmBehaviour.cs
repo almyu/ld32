@@ -9,7 +9,7 @@ public class CalmBehaviour : StateMachineBehaviour {
         var agent = animator.GetComponent<NavMeshAgent>();
         
         agent.speed = walkingSpeed;
-        agent.destination = Seat.Pick(Seat.Preferences.none).worldMountPoint;
+        agent.destination = Seat.Pick(Seat.Preferences.none).GetWaypoint(animator.transform.position);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
@@ -18,5 +18,10 @@ public class CalmBehaviour : StateMachineBehaviour {
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         // drink peacefully
+    }
+
+    public override void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+        animator.SetIKPosition(AvatarIKGoal.RightHand, animator.GetComponent<NavMeshAgent>().destination);
+        animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0.5f);
     }
 }
