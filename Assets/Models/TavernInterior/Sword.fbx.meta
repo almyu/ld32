@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 3434679a028380e409696eecef4849de
-timeCreated: 1429372355
+guid: 57774db76bf15cb409ebb75a1a9a9c07
+timeCreated: 1429429029
 licenseType: Free
 ModelImporter:
   serializedVersion: 18
@@ -14,9 +14,10 @@ ModelImporter:
     400004: Lamp
     400006: //RootNode
     2300000: Cylinder_001
+    2300002: //RootNode
     3300000: Cylinder_001
+    3300002: //RootNode
     4300000: Cylinder_001
-    9500000: //RootNode
   materials:
     importMaterials: 0
     materialName: 0
@@ -70,7 +71,7 @@ ModelImporter:
     feetSpacing: 0
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   additionalBone: 0
   userData: 
   assetBundleName: 
