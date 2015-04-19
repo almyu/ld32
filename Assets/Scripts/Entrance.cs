@@ -13,6 +13,12 @@ public class Entrance : MonoBehaviour {
 
         nextVisitTime = Time.timeSinceLevelLoad + Random.Range(interval[0], interval[1]) / rate;
 
-        Instantiate(visitorPrefab, transform.position, transform.rotation);
+        var obj = (GameObject) Instantiate(visitorPrefab, transform.position, transform.rotation);
+        obj.name += "" + Random.Range(0, 30);
+        
+        var target = obj.AddComponent<Target>();
+        target.enabled = false;
+        target.faction = Random.Range(0, Target.numFactions);
+        target.enabled = true;
     }
 }

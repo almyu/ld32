@@ -6,9 +6,11 @@ public class Visitor : MonoBehaviour {
     public NavMeshAgent agent;
     public Animator animator;
     public Rigidbody leftHand, rightHand;
+    public float reach = 1.5f;
 
     public bool pending, has;
     public float dist, vel;
+    public Target target;
 
     private void Start() {
         StartCoroutine(DoArmUp());
@@ -52,23 +54,60 @@ public class Visitor : MonoBehaviour {
 
         wpn.enabled = false;
 
+        animator.SetTrigger("Pickup");
+
         rightHandTarget = wpn.transform.position;
 
-        for (var t = 0f; t <= 10f; t += Time.deltaTime) {
-            rightHandWeight = t * 0.1f;
+        for (var t = 0f; t <= 0.5f; t += Time.deltaTime) {
+            rightHandWeight = t * 2f;
             yield return null;
         }
 
         wpn.transform.SetParent(rightHand.transform);
         wpn.transform.localPosition = wpn.transform.localPosition.normalized * 0.4f;
+
+        wpn.transform.localRotation = Quaternion.identity;
+
+        var body = wpn.GetComponent<Rigidbody>();
+        if (body) body.isKinematic = true;
+
+        var obstacle = wpn.GetComponent<NavMeshObstacle>();
+        if (obstacle) obstacle.enabled = false;
+
         /*var joint = wpn.GetComponent<Joint>();
         joint.connectedBody = rightHand;
         joint.connectedAnchor = Vector3.zero;*/
 
         while (true) {
-            agent.destination = new Vector3(Random.Range(-5f, 1f), 0f, Random.Range(-8f, 5f));
-            yield return new WaitForSeconds(5f);
+            yield return StartCoroutine(DoCharge());
         }
+    }
+
+    private IEnumerator DoCharge() {
+        var self = GetComponent<Target>();
+        if (!self) yield break;
+
+        target = null;
+        do {
+            if (target == null) {
+                target = self.FindClosestEnemy();
+                if (!target) {
+                    yield return new WaitForSeconds(1f);
+                    continue;
+                }
+            }
+
+            var dest = target.transform.position;
+            agent.destination = dest + (transform.position - dest).normalized * reach;
+
+            yield return new WaitForSeconds(0.1f);
+        }
+        while (!target || agent.remainingDistance > reach);
+
+        transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
+        animator.SetTrigger("Swing");
+
+        yield return new WaitForSeconds(0.7f);
     }
 
     private void OnAnimatorIK(int layerIndex) {
