@@ -16,7 +16,12 @@ public class GenericClub : MonoBehaviour {
         var other = collision.contacts[0].otherCollider;
         var victim = other.GetComponent<Target>();
 
-        if (victim) victim.Hit(vel * damage);
+        if (victim) {
+            var dmg = vel * damage;
+
+            victim.Hit(dmg);
+            FloatingText.instance.Spawn(collision.contacts[0].point, Mathf.RoundToInt(dmg));
+        }
 
         if (durability <= 0f)
             onDestroy.Invoke();
