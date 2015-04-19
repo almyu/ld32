@@ -76,8 +76,8 @@ ModelImporter:
     400066: Bone.006_end
     400068: Plane
     4300000: Plane
-    7400000: Armature|ArmatureAction
-    7400002: Armature|ArmatureAction0
+    7400000: Armature|Pickup
+    7400002: Armature|Hit
     7400004: Armature|ArmatureAction1
     9500000: //RootNode
     13700000: Plane
@@ -98,7 +98,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: Armature|ArmatureAction
+      name: Armature|Pickup
       takeName: Armature|ArmatureAction
       firstFrame: 0
       lastFrame: 30
@@ -194,7 +194,7 @@ ModelImporter:
       maskType: 0
       maskSource: {instanceID: 0}
     - serializedVersion: 16
-      name: Armature|ArmatureAction0
+      name: Armature|Hit
       takeName: Armature|ArmatureAction
       firstFrame: 30
       lastFrame: 53
