@@ -5,7 +5,12 @@ public class Weapon : MonoBehaviour {
 
     public static List<Weapon> availableWeapons = new List<Weapon>(100);
 
-    public Transform handle;
+    [System.Serializable]
+    public struct Handle {
+        public Vector3 offset;
+    }
+
+    public Handle[] handles;
 
 
     public static Weapon FindClosest(Vector3 pos) {
@@ -14,16 +19,38 @@ public class Weapon : MonoBehaviour {
 
         foreach (var weapon in availableWeapons) {
             var distSq = (pos - weapon.transform.position).sqrMagnitude;
-            if (minDistSq > distSq) {
-                minDistSq = distSq;
-                closest = weapon;
-            }
+            if (distSq > minDistSq) continue;
+
+            minDistSq = distSq;
+            closest = weapon;
         }
         return closest;
     }
 
-    private void Awake() {
-        if (handle == null) handle = transform;
+
+    public struct FindHandleResult {
+        public int index;
+        public Vector3 position, approachDirection;
+    }
+
+    public FindHandleResult FindClosestHandle(Vector3 pos) {
+        var xf = transform;
+        var closest = 0;
+        var minDistSq = float.MaxValue;
+
+        for (int i = 0; i < handles.Length; ++i) {
+            var distSq = (pos - xf.TransformPoint(handles[i].offset)).sqrMagnitude;
+            if (distSq > minDistSq) continue;
+
+            minDistSq = distSq;
+            closest = i;
+        }
+
+        return new FindHandleResult {
+            index = closest,
+            position = xf.TransformPoint(handles[closest].offset),
+            approachDirection = xf.TransformDirection(handles[closest].offset).normalized
+        };
     }
 
     private void OnEnable() {
@@ -32,5 +59,14 @@ public class Weapon : MonoBehaviour {
 
     private void OnDisable() {
         availableWeapons.Remove(this);
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.matrix = transform.localToWorldMatrix;
+        Gizmos.color = Color.green.WithA(0.5f);
+
+        foreach (var handle in handles) {
+            Gizmos.DrawWireCube(handle.offset, Vector3.one * 0.2f);
+        }
     }
 }
