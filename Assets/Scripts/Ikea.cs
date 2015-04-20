@@ -7,11 +7,11 @@ public class Ikea : MonoBehaviour {
     public Shader previewShader;
     public Color previewTint;
 
-    public void CleanupPreview() {
-        var xf = transform;
+    private GameObject preview;
 
-        for (int i = xf.childCount; i-- != 0; )
-            DestroyImmediate(xf.GetChild(i).gameObject);
+    public void CleanupPreview() {
+        if (preview) DestroyImmediate(preview);
+        preview = null;
     }
 
     public void SetupPreview() {
@@ -21,15 +21,30 @@ public class Ikea : MonoBehaviour {
 
         var xf = transform;
 
-        var obj = (GameObject) Instantiate(prefab, xf.position, xf.rotation);
-        obj.transform.SetParent(xf);
+        preview = (GameObject) Instantiate(prefab, xf.position, xf.rotation);
+        preview.transform.SetParent(xf);
 
-        foreach (var ren in obj.GetComponentsInChildren<Renderer>()) {
+        foreach (var ren in preview.GetComponentsInChildren<Renderer>()) {
             var mtl = ren.material;
             mtl.shader = previewShader;
             mtl.renderQueue = 3100;
             mtl.SetColor("_TintColor", previewTint);
         }
+    }
+
+    private static Bounds GatherVisualBounds(GameObject obj) {
+        var bounds = new Bounds();
+        var first = true;
+
+        foreach (var ren in obj.GetComponentsInChildren<Renderer>()) {
+            if (first) {
+                bounds = ren.bounds;
+                first = false;
+                continue;
+            }
+            bounds.Encapsulate(ren.bounds);
+        }
+        return bounds;
     }
 
     private void OnEnable() {
@@ -40,5 +55,12 @@ public class Ikea : MonoBehaviour {
         int x, z;
         grid.GetHoveredCell(out x, out z);
         transform.position = grid.CellToWorldPoint(x, z);
+    }
+
+    private void OnDrawGizmos() {
+        if (!preview) return;
+
+        var bounds = GatherVisualBounds(preview);
+        Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
 }
