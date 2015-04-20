@@ -59,14 +59,6 @@ public class Grid : MonoSingleton<Grid> {
         return x >= 0 && z >= 0 && x < width && z < depth;
     }
 
-    public Material foo;
-    private void Update() {
-        ResetMaterials();
-        int x, z;
-        if (GetHoveredCell(out x, out z))
-            Apply(x, z, 2, 3, (x_, z_, state, ren) => ren.sharedMaterial = foo);
-    }
-
     public void Clamp(ref int x, ref int z) {
         if (x < 0) x = 0;
         else if (x >= width) x = width - 1;
