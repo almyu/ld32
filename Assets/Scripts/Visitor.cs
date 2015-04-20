@@ -57,9 +57,11 @@ public class Visitor : MonoBehaviour {
         animator.SetTrigger("Pickup");
 
         rightHandTarget = wpn.transform.position;
+        var desiredLook = Quaternion.LookRotation((rightHandTarget - transform.position).WithY(0f));
 
         for (var t = 0f; t <= 0.5f; t += Time.deltaTime) {
             rightHandWeight = t * 2f;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredLook, 10f);
             yield return null;
         }
 
