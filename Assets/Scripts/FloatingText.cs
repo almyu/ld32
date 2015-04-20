@@ -76,7 +76,7 @@ public class FloatingText : MonoSingleton<FloatingText> {
     private static Font defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
 
-    public void Spawn(Vector3 worldPos, int value) {
+    public GameObject Spawn(Vector3 worldPos, int value) {
         var obj = Instantiate();
         obj.SetActive(true);
 
@@ -86,6 +86,8 @@ public class FloatingText : MonoSingleton<FloatingText> {
         TuneTransform(xf, WorldToScreenPoint(worldPos));
         TuneText(text, value);
         StartCoroutine(Animate(worldPos, xf, text));
+
+        return obj;
     }
 
 
