@@ -3,8 +3,13 @@ using System.Collections.Generic;
 
 public class Ikea : MonoBehaviour {
 
+    public const int
+        cellOccupied    = 1 << 0,
+        cellNextToTable = 1 << 1;
+
     public Grid grid;
     public GameObject prefab;
+    public bool isTable, isSeat;
     public Shader previewShader;
     public Color previewGoodTint, previewBadTint;
     public Material cellGoodMaterial, cellBadMaterial;
@@ -23,6 +28,9 @@ public class Ikea : MonoBehaviour {
         CleanupPreview();
 
         if (!prefab) return;
+
+        //isTable = prefab.CompareTag("Table");
+        //isSeat = prefab.CompareTag("Seat");
 
         var xf = transform;
         var mtls = new List<Material>();
@@ -83,26 +91,54 @@ public class Ikea : MonoBehaviour {
     }
 
     private void Update() {
-        int x, z;
-        grid.GetHoveredCell(out x, out z);
-        transform.position = grid.CellToWorldPoint(x, z);
-
-        var good = true;
+        if (!preview) return;
 
         grid.ResetMaterials();
-        grid.Apply(x, z, gridWidth, gridDepth, (x_, z_, state, cellRen) => {
-            var goodCell = (state & 1) == 0;
-            good = good && goodCell;
-            cellRen.sharedMaterial = goodCell ? cellGoodMaterial : cellBadMaterial;
+
+        int x, z;
+        if (!grid.GetHoveredCell(out x, out z)) {
+            if (preview.activeSelf) preview.SetActive(false);
+            return;
+        }
+
+        if (!preview.activeSelf) preview.SetActive(true);
+
+        transform.position = grid.CellToWorldPoint(x, z);
+
+        var empty = grid.ContainsArea(x, z, gridWidth, gridDepth);
+
+        Apply(x, z, (x_, z_, state, ren) => {
+            var emptyCell = (state & cellOccupied) == 0 && (!isSeat || (state & cellNextToTable) != 0);
+            empty = empty && emptyCell;
+
+            ren.sharedMaterial = emptyCell ? cellGoodMaterial : cellBadMaterial;
         });
 
-        foreach (var mtl in previewMaterials)
-            mtl.SetColor("_TintColor", good ? previewGoodTint : previewBadTint);
+        TintPreview(empty);
 
-        if (good && Input.GetMouseButtonUp(0)) {
+        if (empty && Input.GetMouseButtonUp(0)) {
             BuildHere();
-            grid.Apply(x, z, gridWidth, gridDepth, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
+            Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
+
+            if (isTable) ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
         }
+    }
+
+    private void Apply(int x, int z, Grid.CellPred pred) {
+        grid.Apply(x, z, gridWidth, gridDepth, pred);
+    }
+
+    private void ApplyNextToTable(int x, int z, Grid.CellPred pred) {
+        grid.Apply(x - 1, z, gridWidth + 2, gridDepth, pred);
+        grid.Apply(x, z - 1, gridWidth, gridDepth + 2, pred);
+    }
+
+    private void TintPreview(bool good) {
+        var clr = good ? previewGoodTint : previewBadTint;
+        var id = Shader.PropertyToID("_TintColor");
+
+        foreach (var mtl in previewMaterials)
+            mtl.SetColor(id, clr);
     }
 
     private void OnDrawGizmos() {

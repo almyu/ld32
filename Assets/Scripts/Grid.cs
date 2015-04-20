@@ -65,6 +65,10 @@ public class Grid : MonoSingleton<Grid> {
         return x >= 0 && z >= 0 && x < width && z < depth;
     }
 
+    public bool ContainsArea(int x, int z, int w, int d) {
+        return ContainsCell(x, z) && ContainsCell(x + w - 1, z + d - 1);
+    }
+
     public void Clamp(ref int x, ref int z) {
         if (x < 0) x = 0;
         else if (x >= width) x = width - 1;
