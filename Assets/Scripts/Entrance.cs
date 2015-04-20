@@ -16,6 +16,8 @@ public class Entrance : MonoBehaviour {
         if (limit <= 0) return;
         --limit;
 
+        if (Seat.availableSeats.Count == 0) return;
+
         var prefab = visitorPrefabs[Random.Range(0, visitorPrefabs.Length)];
 
         var obj = (GameObject)Instantiate(prefab, transform.position, transform.rotation);

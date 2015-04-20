@@ -3,12 +3,6 @@ using System.Collections.Generic;
 
 public class Seat : MonoBehaviour {
 
-    [System.Serializable]
-    public struct Preferences {
-
-        public static readonly Preferences none = new Preferences();
-    }
-
     public static List<Seat> availableSeats = new List<Seat>(100);
 
     public Vector3 mountPoint = Vector3.up, mountDirection = Vector3.forward;
@@ -32,8 +26,10 @@ public class Seat : MonoBehaviour {
         return worldMountPoint + approachDir;
     }
 
-    public static Seat Pick(Preferences prefs) {
-        return availableSeats[Random.Range(0, availableSeats.Count)];
+    public static Seat Pick() {
+        return availableSeats.Count != 0
+            ? availableSeats[Random.Range(0, availableSeats.Count)]
+            : null;
     }
 
     private void OnEnable() {

@@ -13,11 +13,14 @@ public class Visitor : MonoBehaviour {
     public Target target;
 
     private void Start() {
-        StartCoroutine(DoArmUp());
+        WarpToSeat();
+        //StartCoroutine(DoArmUp());
     }
 
     private void Update() {
         animator.SetFloat("Speed", agent.velocity.magnitude);
+
+        if (!agent.enabled) return;
 
         pending = agent.pathPending;
         has = agent.hasPath;
@@ -29,6 +32,21 @@ public class Visitor : MonoBehaviour {
 
             animator.SetTrigger("PathComplete");
         }
+    }
+
+    private void WarpToSeat() {
+        var seat = Seat.Pick();
+        if (!seat) {
+            agent.destination = new Vector3(2.8f, 0f, 5.5f);
+            return;
+        }
+
+        agent.enabled = false;
+        GetComponent<Rigidbody>().isKinematic = true;
+        transform.position = seat.transform.TransformPoint(seat.mountPoint).WithY(0f);
+        transform.rotation = seat.transform.rotation;
+        seat.enabled = false;
+        animator.Play("SitDown");
     }
 
     private IEnumerator DoGo(Vector3 position) {
