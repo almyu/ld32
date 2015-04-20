@@ -29,8 +29,8 @@ public class Ikea : MonoBehaviour {
 
         if (!prefab) return;
 
-        //isTable = prefab.CompareTag("Table");
-        //isSeat = prefab.CompareTag("Seat");
+        isTable = prefab.CompareTag("Table");
+        isSeat = prefab.CompareTag("Seat");
 
         var xf = transform;
         var mtls = new List<Material>();
