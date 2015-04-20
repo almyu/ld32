@@ -18,7 +18,7 @@ class IkeaEditor : Editor {
 }
 #endif
 
-public class Ikea : MonoBehaviour {
+public class Ikea : MonoSingleton<Ikea> {
 
     public const int
         cellOccupied    = 1 << 0,
