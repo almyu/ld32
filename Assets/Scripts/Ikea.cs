@@ -35,7 +35,6 @@ public class Ikea : MonoBehaviour {
     private GameObject preview;
     private Material[] previewMaterials = new Material[0];
     private int gridWidth, gridDepth;
-    private Vector3 offset;
 
     public void CleanupPreview() {
         if (preview) DestroyImmediate(preview);
@@ -56,12 +55,12 @@ public class Ikea : MonoBehaviour {
         preview = (GameObject) Instantiate(prefab, xf.position, xf.rotation);
         preview.transform.SetParent(xf);
 
-        foreach (var ren in preview.GetComponentsInChildren<Renderer>()) {
-            var mtl = ren.material;
+        foreach (var ren in preview.GetComponentsInChildren<Renderer>())
+            mtls.AddRange(ren.materials);
+
+        foreach (var mtl in mtls) {
             mtl.shader = previewShader;
             mtl.renderQueue = 3100;
-
-            mtls.Add(mtl);
         }
 
         previewMaterials = mtls.ToArray();
@@ -80,23 +79,29 @@ public class Ikea : MonoBehaviour {
         gridWidth = Mathf.Max(1, Mathf.RoundToInt(size.x));
         gridDepth = Mathf.Max(1, Mathf.RoundToInt(size.z));
 
-        offset = new Vector3((gridWidth - 1) % 2, 0, (gridDepth - 1) % 2) * 0.5f;
+        preview.transform.localPosition = new Vector3((gridWidth - 1) % 2, 0, (gridDepth - 1) % 2) * 0.5f;
 
-        if (flip) {
-            var tmp = gridWidth;
-            gridWidth = gridDepth;
-            gridDepth = tmp;
+        if (flip) Flip();
+    }
 
-            offset = offset.WithXZ(offset.z, offset.x);
+    private void Flip() {
+        if (!preview) return;
 
-            preview.transform.Rotate(Vector3.up, 90f);
-        }
+        var tmp = gridWidth;
+        gridWidth = gridDepth;
+        gridDepth = tmp;
 
-        preview.transform.localPosition = offset;
+        var xf = preview.transform;
+        var pos = xf.localPosition;
+        var euler = xf.localEulerAngles;
+
+        xf.localPosition = pos.WithXZ(pos.z, pos.x);
+        xf.localEulerAngles = euler.WithY(90f - euler.y);
     }
 
     public void BuildHere() {
-        Instantiate(prefab, transform.position + offset, transform.rotation);
+        var xf = preview.transform;
+        Instantiate(prefab, xf.position, xf.rotation);
     }
 
     private static Bounds GatherVisualBounds(GameObject obj) {
@@ -149,6 +154,11 @@ public class Ikea : MonoBehaviour {
             Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
 
             if (isTable) ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
+        }
+
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space)) {
+            flip = !flip;
+            Flip();
         }
     }
 
