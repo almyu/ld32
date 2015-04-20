@@ -1,6 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using UnityEditor;
+
+[CustomEditor(typeof(Ikea))]
+class IkeaEditor : Editor {
+
+    public override void OnInspectorGUI() {
+        EditorGUI.BeginChangeCheck();
+        DrawDefaultInspector();
+        var dirty = EditorGUI.EndChangeCheck();
+
+        if (GUILayout.Button("Reset Preview") || dirty)
+            (target as Ikea).SetupPreview();
+    }
+}
+#endif
+
 public class Ikea : MonoBehaviour {
 
     public const int
@@ -9,6 +26,7 @@ public class Ikea : MonoBehaviour {
 
     public Grid grid;
     public GameObject prefab;
+    public bool flip;
     public bool isTable, isSeat;
     public Shader previewShader;
     public Color previewGoodTint, previewBadTint;
@@ -17,7 +35,7 @@ public class Ikea : MonoBehaviour {
     private GameObject preview;
     private Material[] previewMaterials = new Material[0];
     private int gridWidth, gridDepth;
-    public Vector3 offset;
+    private Vector3 offset;
 
     public void CleanupPreview() {
         if (preview) DestroyImmediate(preview);
@@ -63,6 +81,16 @@ public class Ikea : MonoBehaviour {
         gridDepth = Mathf.Max(1, Mathf.RoundToInt(size.z));
 
         offset = new Vector3((gridWidth - 1) % 2, 0, (gridDepth - 1) % 2) * 0.5f;
+
+        if (flip) {
+            var tmp = gridWidth;
+            gridWidth = gridDepth;
+            gridDepth = tmp;
+
+            offset = offset.WithXZ(offset.z, offset.x);
+
+            preview.transform.Rotate(Vector3.up, 90f);
+        }
 
         preview.transform.localPosition = offset;
     }
