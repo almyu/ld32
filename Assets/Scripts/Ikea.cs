@@ -26,6 +26,7 @@ public class Ikea : MonoSingleton<Ikea> {
 
     public Grid grid;
     public GameObject prefab;
+    public int cost;
     public bool flip;
     public bool isTable, isSeat;
     public Shader previewShader;
@@ -99,6 +100,17 @@ public class Ikea : MonoSingleton<Ikea> {
         xf.localEulerAngles = euler.WithY(90f - euler.y);
     }
 
+    public bool BuyHere() {
+        var inst = Cash.instance;
+        if (!inst) return true;
+
+        inst.transactionPosition = transform.position;
+        inst.Spend(cost);
+
+        BuildHere();
+        return true;
+    }
+
     public void BuildHere() {
         var xf = preview.transform;
         Instantiate(prefab, xf.position, xf.rotation);
@@ -150,10 +162,10 @@ public class Ikea : MonoSingleton<Ikea> {
         TintPreview(empty);
 
         if (empty && Input.GetMouseButtonUp(0)) {
-            BuildHere();
-            Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
-
-            if (isTable) ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
+            if (BuyHere()) {
+                Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
+                if (isTable) ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
+            }
         }
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space)) {

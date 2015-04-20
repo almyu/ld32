@@ -10,5 +10,8 @@ public class IkeaControl : MonoBehaviour {
         inst.SetupPreview();
     }
 
-    public void SetFurnitureCost(int cost) {}
+    public void SetFurnitureCost(int cost) {
+        var inst = Ikea.instance;
+        if (inst) inst.cost = cost;
+    }
 }

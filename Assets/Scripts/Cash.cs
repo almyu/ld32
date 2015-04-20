@@ -4,7 +4,7 @@ using JamSuite.Events;
 public class Cash : MonoSingleton<Cash> {
 
     public int amount = 100;
-    public IntEvent onChange;
+    public StringEvent onChangeText;
 
     public FloatingText notifier;
     public Vector3 transactionPosition;
@@ -13,13 +13,15 @@ public class Cash : MonoSingleton<Cash> {
         if (amount < some) return false;
 
         amount -= some;
-        onChange.Invoke(amount);
+        Notify(-some);
+        onChangeText.Invoke(amount + "");
         return true;
     }
 
     public void Earn(int some) {
         amount += some;
-        onChange.Invoke(amount);
+        Notify(some);
+        onChangeText.Invoke(amount + "");
     }
 
     public void Notify(int value) {
