@@ -9,6 +9,8 @@ public class GenericClub : MonoBehaviour {
     public UnityEvent onDestroy;
 
     private void OnCollisionEnter(Collision collision) {
+        if (collision.contacts.Length == 0) return;
+
         var vel = collision.relativeVelocity.magnitude;
 
         durability -= vel;

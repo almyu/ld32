@@ -13,7 +13,13 @@ public class Grid : MonoSingleton<Grid> {
     private Plane raycastPlane;
 
     public Vector3 Snap(Vector3 point) {
-        return transform.position + new Vector3(Mathf.Round(point.x), 0f, Mathf.Round(point.z));
+        var origin = transform.position;
+        point -= origin;
+        return origin + new Vector3(Mathf.Round(point.x), 0f, Mathf.Round(point.z));
+    }
+
+    public Vector3 CellToWorldPoint(int x, int z) {
+        return transform.position + new Vector3(x, 0, z);
     }
 
     public void Generate() {
