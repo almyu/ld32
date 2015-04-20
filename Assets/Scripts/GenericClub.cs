@@ -6,7 +6,7 @@ public class GenericClub : MonoBehaviour {
     public float durability = 1f;
     public float damage = 1f;
 
-    public UnityEvent onDestroy;
+    public UnityEvent onHit, onDestroy;
 
     private void OnCollisionEnter(Collision collision) {
         if (collision.contacts.Length == 0) return;
@@ -22,6 +22,7 @@ public class GenericClub : MonoBehaviour {
             var dmg = vel * damage;
 
             victim.Hit(dmg);
+            onHit.Invoke();
 
             var visualDmg = Mathf.RoundToInt(dmg);
             if (visualDmg > 0) FloatingText.instance.Spawn(collision.contacts[0].point, visualDmg);

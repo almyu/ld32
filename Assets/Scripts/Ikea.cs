@@ -17,6 +17,8 @@ public class Ikea : MonoBehaviour {
     public void SetupPreview() {
         CleanupPreview();
 
+        if (!prefab) return;
+
         var xf = transform;
 
         var obj = (GameObject) Instantiate(prefab, xf.position, xf.rotation);
@@ -31,7 +33,7 @@ public class Ikea : MonoBehaviour {
     }
 
     private void OnEnable() {
-        if (prefab) SetupPreview();
+        SetupPreview();
     }
 
     private void Update() {
