@@ -21,7 +21,7 @@ ModelImporter:
     4300002: Table
     6400000: //RootNode
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
   animations:
