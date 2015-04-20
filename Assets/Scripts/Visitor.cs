@@ -69,9 +69,7 @@ public class Visitor : MonoBehaviour {
         wpn.transform.localRotation = Quaternion.identity;
 
         var body = wpn.GetComponent<Rigidbody>();
-        if (body) {
-            body.isKinematic = true;
-        }
+        if (body) body.isKinematic = true;
 
         var collider = wpn.GetComponentInChildren<Collider>();
         if (collider) {
