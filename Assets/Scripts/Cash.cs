@@ -27,4 +27,8 @@ public class Cash : MonoSingleton<Cash> {
     public void Notify(int value) {
         if (notifier) notifier.Spawn(transactionPosition, value);
     }
+
+    private void OnEnable() {
+        onChangeText.Invoke(amount + "");
+    }
 }

@@ -105,7 +105,7 @@ public class Ikea : MonoSingleton<Ikea> {
         if (!inst) return true;
 
         inst.transactionPosition = transform.position;
-        inst.Spend(cost);
+        if (!inst.Spend(cost)) return false;
 
         BuildHere();
         return true;
