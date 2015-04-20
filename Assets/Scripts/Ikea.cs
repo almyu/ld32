@@ -30,6 +30,18 @@ public class Ikea : MonoBehaviour {
             mtl.renderQueue = 3100;
             mtl.SetColor("_TintColor", previewTint);
         }
+
+        foreach (var cmp in preview.GetComponentsInChildren<Component>()) {
+            if (cmp is Transform) continue;
+            if (cmp is MeshFilter) continue;
+            if (cmp is MeshRenderer) continue;
+
+            DestroyImmediate(cmp);
+        }
+    }
+
+    public void BuildHere() {
+        Instantiate(prefab, transform.position, transform.rotation);
     }
 
     private static Bounds GatherVisualBounds(GameObject obj) {
@@ -55,6 +67,10 @@ public class Ikea : MonoBehaviour {
         int x, z;
         grid.GetHoveredCell(out x, out z);
         transform.position = grid.CellToWorldPoint(x, z);
+
+        if (Input.GetMouseButtonUp(0)) {
+            BuildHere();
+        }
     }
 
     private void OnDrawGizmos() {
