@@ -39,9 +39,10 @@ public class CameraControl : MonoBehaviour {
         if (appQuitting) return;
 
         var compactPosition = initialPosition + compactModeOffset;
+        var proc = CameraControlRunner.instance;
 
-        StopAllCoroutines();
-        StartCoroutine(DoAnimate(
+        proc.StopAllCoroutines();
+        proc.StartCoroutine(DoAnimate(
             compact ? initialPosition : compactPosition,
             compact ? compactPosition : initialPosition,
             compact ? initialFov : compactModeFov,

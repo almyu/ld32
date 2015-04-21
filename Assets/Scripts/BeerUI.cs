@@ -19,4 +19,9 @@ public class BeerUI : MonoSingleton<BeerUI> {
 
         return req;
     }
+
+    public void ServeAll() {
+        foreach (var req in FindObjectsOfType<BeerRequest>())
+            req.Serve();
+    }
 }
