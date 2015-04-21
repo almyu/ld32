@@ -23,6 +23,12 @@ public class BeerRequest : MonoBehaviour {
     }
 
     private void Update() {
+        if (timer < 0f) {
+            Tension.instance.AddSome();
+            Destroy(gameObject);
+            return;
+        }
+
         waitingBar.anchorMax = waitingBar.anchorMax.WithY(timer / waitingTime);
         timer -= Time.deltaTime;
     }
