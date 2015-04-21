@@ -2,6 +2,7 @@
 
 public class BeerDrinker : MonoBehaviour {
 
+    public float firstOrderTime = 3f;
     public float maxInterval = 15f;
     public float minInterval = 3f;
     public float intervalDelta = -3f;
@@ -17,6 +18,6 @@ public class BeerDrinker : MonoBehaviour {
 
     private void Start() {
         nextInterval = maxInterval;
-        RequestBeer();
+        Invoke("RequestBeer", firstOrderTime);
     }
 }

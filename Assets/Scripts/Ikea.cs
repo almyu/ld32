@@ -21,8 +21,9 @@ class IkeaEditor : Editor {
 public class Ikea : MonoSingleton<Ikea> {
 
     public const int
-        cellOccupied    = 1 << 0,
-        cellNextToTable = 1 << 1;
+        cellOccupied = 1 << 0,
+        cellNextToTable = 1 << 1,
+        cellTable = 1 << 2;
 
     public Grid grid;
     public GameObject prefab;
@@ -143,6 +144,11 @@ public class Ikea : MonoSingleton<Ikea> {
         int x, z;
         if (!grid.GetHoveredCell(out x, out z)) {
             if (preview.activeSelf) preview.SetActive(false);
+
+            if (Input.GetMouseButtonDown(0)) {
+                CleanupPreview();
+                prefab = null;
+            }
             return;
         }
 
@@ -161,10 +167,23 @@ public class Ikea : MonoSingleton<Ikea> {
 
         TintPreview(empty);
 
+        if (isSeat) {
+            var turn = !flip
+                ? grid.GetStateBit(x, z - 1, cellTable)
+                : grid.GetStateBit(x - 1, z, cellTable);
+
+            var angle = (turn ? 180f : 0f) + (flip ? 90f : 0f);
+            preview.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
+        }
+
         if (empty && Input.GetMouseButtonUp(0)) {
             if (BuyHere()) {
-                Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, 1, true));
-                if (isTable) ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
+                Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, cellOccupied, true));
+
+                if (isTable) {
+                    ApplyNextToTable(x, z, (x_, z_, state, r_) => grid.SetStateBit(x_, z_, cellNextToTable, true));
+                    Apply(x, z, (x_, z_, state, cellRen) => grid.SetStateBit(x_, z_, cellTable, true));
+                }
             }
         }
 

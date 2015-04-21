@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Entrance : MonoBehaviour {
+public class Entrance : MonoSingleton<Entrance> {
 
     public GameObject[] visitorPrefabs;
     public Vector2 interval = new Vector2(3f, 5f);
@@ -9,14 +9,16 @@ public class Entrance : MonoBehaviour {
 
     private float nextVisitTime;
 
+    private void OnEnable() {
+        limit = Seat.availableSeats.Count + 3;
+    }
+
     private void Update() {
         if (nextVisitTime > Time.timeSinceLevelLoad) return;
         nextVisitTime = Time.timeSinceLevelLoad + Random.Range(interval[0], interval[1]) / rate;
 
         if (limit <= 0) return;
         --limit;
-
-        if (Seat.availableSeats.Count == 0) return;
 
         var prefab = visitorPrefabs[Random.Range(0, visitorPrefabs.Length)];
 
