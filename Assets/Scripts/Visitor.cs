@@ -7,6 +7,9 @@ public class Visitor : MonoBehaviour {
     public Animator animator;
     public Rigidbody leftHand, rightHand;
     public float reach = 1.5f;
+    public float sittingOffset = 0f;
+    public float warpDuration = 0.5f;
+    public float warpHeight = 10f;
 
     public bool pending, has;
     public float dist, vel;
@@ -37,16 +40,32 @@ public class Visitor : MonoBehaviour {
     private void WarpToSeat() {
         var seat = Seat.Pick();
         if (!seat) {
-            agent.destination = new Vector3(2.8f, 0f, 5.5f);
+            agent.destination = new Vector3(2.8f + Random.Range(-2f, 2f), 0f, 5.5f);
             return;
         }
 
         agent.enabled = false;
         GetComponent<Rigidbody>().isKinematic = true;
-        transform.position = seat.transform.TransformPoint(seat.mountPoint).WithY(0f);
+        transform.position = seat.transform.TransformPoint(seat.mountPoint).WithY(sittingOffset);
         transform.rotation = seat.transform.rotation;
         seat.enabled = false;
+
         animator.Play("SitDown");
+        StartCoroutine(DoWarpToSeat(transform.position));
+    }
+
+    private IEnumerator DoWarpToSeat(Vector3 dest) {
+        var start = dest + Vector3.up * warpHeight;
+
+        for (var t = 0f; t <= warpDuration; t += Time.deltaTime) {
+            var progress = t / warpDuration;
+            progress *= progress;
+
+            transform.position = Vector3.Lerp(start, dest, progress);
+            yield return null;
+        }
+
+        transform.position = dest;
     }
 
     private IEnumerator DoGo(Vector3 position) {
