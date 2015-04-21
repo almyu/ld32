@@ -24,7 +24,7 @@ public class GenericClub : MonoBehaviour {
             victim.Hit(dmg);
             onHit.Invoke();
 
-            var visualDmg = Mathf.RoundToInt(dmg);
+            var visualDmg = Mathf.RoundToInt(dmg * 100f);
             if (visualDmg > 0) FloatingText.instance.Spawn(collision.contacts[0].point, visualDmg);
         }
 

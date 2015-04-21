@@ -17,7 +17,6 @@ public class Visitor : MonoBehaviour {
 
     private void Start() {
         WarpToSeat();
-        //StartCoroutine(DoArmUp());
     }
 
     private void Update() {
@@ -66,6 +65,13 @@ public class Visitor : MonoBehaviour {
         }
 
         transform.position = dest;
+    }
+
+    public void Enrage() {
+        agent.enabled = true;
+        GetComponent<Rigidbody>().isKinematic = false;
+        animator.Play("Idle");
+        StartCoroutine(DoArmUp());
     }
 
     private IEnumerator DoGo(Vector3 position) {
@@ -124,7 +130,8 @@ public class Visitor : MonoBehaviour {
         joint.connectedAnchor = Vector3.zero;*/
 
         while (true) {
-            yield return StartCoroutine(DoCharge());
+            if (wpn) yield return StartCoroutine(DoCharge());
+            else yield return DoArmUp();
         }
     }
 
