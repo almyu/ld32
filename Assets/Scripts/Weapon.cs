@@ -4,14 +4,7 @@ using System.Collections.Generic;
 public class Weapon : MonoBehaviour {
 
     public static List<Weapon> availableWeapons = new List<Weapon>(100);
-
-    [System.Serializable]
-    public struct Handle {
-        public Vector3 offset;
-    }
-
-    public Handle[] handles;
-
+    public static int existingWeaponCount;
 
     public static Weapon FindClosest(Vector3 pos) {
         var closest = null as Weapon;
@@ -27,30 +20,36 @@ public class Weapon : MonoBehaviour {
         return closest;
     }
 
+    public Vector3 handleRotation;
+    public Vector3 handleOffset;
 
-    public struct FindHandleResult {
-        public int index;
-        public Vector3 position, approachDirection;
+    private Rigidbody cachedBody;
+    private Collider cachedCollider;
+    private NavMeshObstacle cachedObstacle;
+
+    private void Awake() {
+        cachedBody = GetComponent<Rigidbody>();
+        cachedCollider = GetComponentInChildren<Collider>();
+        cachedObstacle = GetComponent<NavMeshObstacle>();
+
+        ++existingWeaponCount;
     }
 
-    public FindHandleResult FindClosestHandle(Vector3 pos) {
-        var xf = transform;
-        var closest = 0;
-        var minDistSq = float.MaxValue;
+    private void OnDestroy() {
+        --existingWeaponCount;
+    }
 
-        for (int i = 0; i < handles.Length; ++i) {
-            var distSq = (pos - xf.TransformPoint(handles[i].offset)).sqrMagnitude;
-            if (distSq > minDistSq) continue;
+    public void SetHeld(bool held) {
+        //cachedBody.isKinematic = !held;
+        cachedCollider.isTrigger = held;
+        cachedObstacle.enabled = !held;
+        enabled = !held;
+    }
 
-            minDistSq = distSq;
-            closest = i;
-        }
-
-        return new FindHandleResult {
-            index = closest,
-            position = xf.TransformPoint(handles[closest].offset),
-            approachDirection = xf.TransformDirection(handles[closest].offset).normalized
-        };
+    public void SetBeingAnimated(bool animated) {
+        cachedBody.isKinematic = animated;
+        cachedBody.useGravity = !animated;
+        cachedCollider.enabled = !animated;
     }
 
     private void OnEnable() {
@@ -61,12 +60,10 @@ public class Weapon : MonoBehaviour {
         availableWeapons.Remove(this);
     }
 
-    private void OnDrawGizmos() {
+    private void OnDrawGizmosSelected() {
         Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.color = Color.green.WithA(0.5f);
+        Gizmos.color = Color.green;
 
-        foreach (var handle in handles) {
-            Gizmos.DrawWireCube(handle.offset, Vector3.one * 0.2f);
-        }
+        Gizmos.DrawCube(handleOffset, Vector3.one * 0.2f);
     }
 }

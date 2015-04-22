@@ -6,10 +6,13 @@ public class Visitor : MonoBehaviour {
     public NavMeshAgent agent;
     public Animator animator;
     public Rigidbody leftHand, rightHand;
+    public Transform weaponMark;
     public float reach = 1.5f;
     public float sittingOffset = 0f;
     public float warpDuration = 0.5f;
     public float warpHeight = 10f;
+
+    public Weapon weapon;
 
     public bool pending, has;
     public float dist, vel;
@@ -39,7 +42,7 @@ public class Visitor : MonoBehaviour {
     private void WarpToSeat() {
         var seat = Seat.Pick();
         if (!seat) {
-            agent.destination = new Vector3(2.8f + Random.Range(-2f, 2f), 0f, 5.5f);
+            agent.destination = new Vector3(2.8f + Random.Range(-2f, 2f), 0f, 5f);
             return;
         }
 
@@ -69,9 +72,41 @@ public class Visitor : MonoBehaviour {
 
     public void Enrage() {
         agent.enabled = true;
-        GetComponent<Rigidbody>().isKinematic = false;
         animator.Play("Idle");
-        StartCoroutine(DoArmUp());
+
+        if (!weapon) {
+            StopAllCoroutines();
+            StartCoroutine(DoArmUp());
+        }
+    }
+
+    public void Disarm() {
+        if (weapon) {
+            var joint = weapon.GetComponent<FixedJoint>();
+            if (joint) DestroyImmediate(joint);
+
+            weapon.SetHeld(false);
+            weapon.SetBeingAnimated(false);
+        }
+        weapon = null;
+
+        animator.Play("Calm", 1);
+    }
+
+    public void Leave() {
+        agent.speed = 2f;
+
+        StopAllCoroutines();
+        StartCoroutine(DoLeave());
+    }
+
+    private void OnDestroy() {
+        if (weapon) {
+            var joint = weapon.GetComponent<FixedJoint>();
+            if (joint) DestroyImmediate(joint);
+
+            weapon.SetHeld(false);
+        }
     }
 
     private IEnumerator DoGo(Vector3 position) {
@@ -81,40 +116,31 @@ public class Visitor : MonoBehaviour {
             yield return null;
     }
 
-    public Vector3 rightHandTarget;
-    public float rightHandWeight;
+    private static Vector3 RollPosition() {
+        return new Vector3(Random.value * 11f, 0f, Random.value * 5f);
+    }
+
+    private IEnumerator DoLeave() {
+        Disarm();
+        yield return StartCoroutine(DoGo(Entrance.instance.transform.position));
+        Destroy(gameObject);
+    }
 
     private IEnumerator DoArmUp() {
+        agent.stoppingDistance = 1f;
+
+        Disarm();
+
         Weapon wpn;
         do {
             wpn = Weapon.FindClosest(transform.position);
-            if (wpn == null) yield break;
-
-            agent.stoppingDistance = 1f;
-            yield return StartCoroutine(DoGo(wpn.transform.position));
+            if (wpn) yield return StartCoroutine(DoGo(wpn.transform.position));
+            else yield return StartCoroutine(DoGo(RollPosition()));
         }
-        while (!wpn.enabled);
+        while (!wpn || !wpn.enabled);
 
         wpn.enabled = false;
-
-        animator.SetTrigger("Pickup");
-
-        rightHandTarget = wpn.transform.position;
-        var desiredLook = Quaternion.LookRotation((rightHandTarget - transform.position).WithY(0f));
-
-        for (var t = 0f; t <= 0.5f; t += Time.deltaTime) {
-            rightHandWeight = t * 2f;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredLook, 10f);
-            yield return null;
-        }
-
-        wpn.transform.SetParent(rightHand.transform);
-        wpn.transform.localPosition = wpn.transform.localPosition.normalized * 0.4f;
-
-        wpn.transform.localRotation = Quaternion.identity;
-
-        var body = wpn.GetComponent<Rigidbody>();
-        if (body) body.isKinematic = true;
+        weapon = wpn;
 
         var collider = wpn.GetComponentInChildren<Collider>();
         if (collider) {
@@ -122,17 +148,44 @@ public class Visitor : MonoBehaviour {
             if (ownCollider) Physics.IgnoreCollision(collider, ownCollider);
         }
 
-        var obstacle = wpn.GetComponent<NavMeshObstacle>();
-        if (obstacle) obstacle.enabled = false;
+        animator.SetTrigger("Pickup");
 
-        /*var joint = wpn.GetComponent<Joint>();
-        joint.connectedBody = rightHand;
-        joint.connectedAnchor = Vector3.zero;*/
+        var desiredLook = Quaternion.LookRotation((wpn.transform.position - transform.position).WithY(0f));
 
-        while (true) {
-            if (wpn) yield return StartCoroutine(DoCharge());
-            else yield return DoArmUp();
+        for (var t = 0f; t <= 0.5f; t += Time.deltaTime) {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredLook, 10f);
+            yield return null;
         }
+
+        wpn.SetHeld(true);
+        wpn.SetBeingAnimated(true);
+
+        var xf = wpn.transform;
+        var handXf = rightHand.transform;
+
+        var initialRot = xf.rotation;
+        var relRot = Quaternion.Euler(wpn.handleRotation);
+
+        for (var t = 0f; t <= 0.5f; t += Time.deltaTime) {
+            if (!xf) break;
+
+            var progress = t * 2f;
+            var dstRot = transform.rotation * relRot;
+
+            xf.rotation = Quaternion.Slerp(initialRot, dstRot, progress);
+            xf.position = handXf.position - xf.rotation * (wpn.handleOffset * progress);
+            yield return null;
+        }
+
+        if (wpn) {
+            var joint = wpn.gameObject.AddComponent<FixedJoint>();
+            joint.connectedBody = rightHand;
+
+            wpn.SetBeingAnimated(false);
+        }
+        
+        while (weapon) yield return StartCoroutine(DoCharge());
+        yield return StartCoroutine(DoArmUp());
     }
 
     private IEnumerator DoCharge() {
@@ -159,11 +212,6 @@ public class Visitor : MonoBehaviour {
         transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
         animator.SetTrigger("Swing");
 
-        yield return new WaitForSeconds(0.7f);
-    }
-
-    private void OnAnimatorIK(int layerIndex) {
-        animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandTarget);
-        animator.SetIKPositionWeight(AvatarIKGoal.RightHand, rightHandWeight);
+        yield return new WaitForSeconds(Random.Range(0.6f, 0.8f));
     }
 }

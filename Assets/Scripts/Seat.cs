@@ -45,17 +45,17 @@ public class Seat : MonoBehaviour {
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.color = Color.white.WithA(0.3f);
 
-        UnityEditor.Handles.matrix = transform.localToWorldMatrix;
+        /*UnityEditor.Handles.matrix = transform.localToWorldMatrix;
         UnityEditor.Handles.color = Color.white.WithA(0.1f);
 
         UnityEditor.Handles.DrawSolidArc(mountPoint, Vector3.forward,
             Quaternion.AngleAxis(mountAngleRange[0], Vector3.forward) * mountDirection,
-            mountAngleRange[1] - mountAngleRange[0], mountDirection.magnitude);
+            mountAngleRange[1] - mountAngleRange[0], mountDirection.magnitude);*/
 
         Gizmos.DrawRay(mountPoint, mountDirection);
         Gizmos.DrawSphere(mountPoint, 0.1f);
 
-        Gizmos.color = Color.red;
+        /*Gizmos.color = Color.red;
         Gizmos.DrawRay(mountPoint, approachDirection);
 
         Gizmos.matrix = Matrix4x4.identity;
@@ -64,7 +64,7 @@ public class Seat : MonoBehaviour {
             var dir = Quaternion.AngleAxis(i * 10f, Vector3.up) * Vector3.right;
             var point = transform.position + dir;
             Gizmos.DrawLine(transform.TransformPoint(mountPoint), GetWaypoint(point));
-        }
+        }*/
     }
 #endif
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class Target : MonoBehaviour {
@@ -24,6 +25,10 @@ public class Target : MonoBehaviour {
     public int faction;
     public float hp = 100f;
 
+    public Transform deadRagdoll;
+
+    public UnityEvent onDead;
+
     public Target FindClosestEnemy() {
         var pos = transform.position;
 
@@ -41,6 +46,18 @@ public class Target : MonoBehaviour {
 
     public void Hit(float damage) {
         hp -= damage;
+        if (hp <= 0f) Kill();
+    }
+
+    public void Kill() {
+        if (deadRagdoll) {
+            var xf = (Transform) Instantiate(deadRagdoll, transform.position, transform.rotation);
+            RagdollUtility.CopyPose(transform, xf);
+        }
+        onDead.Invoke();
+
+        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     private void OnEnable() {
