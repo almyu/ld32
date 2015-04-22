@@ -73,9 +73,6 @@ public class FloatingText : MonoSingleton<FloatingText> {
     };
 
 
-    private static Font defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
-
-
     public GameObject Spawn(Vector3 worldPos, int value) {
         var obj = Instantiate();
         obj.SetActive(true);
@@ -100,7 +97,7 @@ public class FloatingText : MonoSingleton<FloatingText> {
 
         var text = obj.AddComponent<Text>();
         text.supportRichText = false;
-        text.font = defaultFont;
+        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         text.alignment = TextAnchor.MiddleCenter;
         text.horizontalOverflow = HorizontalWrapMode.Overflow;
         text.verticalOverflow = VerticalWrapMode.Overflow;
